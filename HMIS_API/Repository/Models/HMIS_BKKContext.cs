@@ -1,5 +1,6 @@
 ﻿using System;
 using HMIS_API.Repository.ModelView;
+using HMIS_API.Repository.QH;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -71,7 +72,7 @@ namespace HMIS_API.Repository.Models
         public virtual DbSet<MailSystem> MailSystems { get; set; }
         public virtual DbSet<UserFunction> UserFunctions { get; set; }
         public virtual DbSet<GroupDocByDept> GroupDocByDepts { get; set; }
-        
+        public virtual DbSet<ListDocument> ListDocuments { get; set; }
         public virtual DbSet<FlightUpdate> FlightUpdates { get; set; }
         public virtual DbSet<Ttot> Ttots { get; set; }
         public virtual DbSet<Booking> Bookings { get; set; }
@@ -352,6 +353,17 @@ namespace HMIS_API.Repository.Models
                 entity.Property(e => e.RoleCode);
                 entity.Property(e => e.ListDocument);
                 entity.Property(e => e.AreaName);
+            });
+
+            modelBuilder.Entity<ListDocument>(entity =>
+            {
+                entity.HasKey(e => e.DocumentId);
+                entity.Property(e => e.DocumentId);
+                entity.Property(e => e.FlightID);
+                entity.Property(e => e.DocumentName);
+                entity.Property(e => e.DocumentTypeName);
+                entity.Property(e => e.DateModified);
+                entity.Property(e => e.FullPath);
             });
 
             modelBuilder.Entity<Ardt>(entity =>
@@ -1191,6 +1203,7 @@ namespace HMIS_API.Repository.Models
                 entity.Property(e => e.DateModified).HasColumnName("DateModified");
                 entity.Property(e => e.DocumentSize).HasColumnName("DocumentSize");
                 entity.Property(e => e.FullPath).HasColumnName("FullPath");
+                entity.Property(e => e.UserId).HasColumnName("UserId");
             });
 
             modelBuilder.Entity<DocumentType>(entity =>
