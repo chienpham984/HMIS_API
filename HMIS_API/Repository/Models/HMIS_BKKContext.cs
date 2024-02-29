@@ -32,6 +32,8 @@ namespace HMIS_API.Repository.Models
         public virtual DbSet<Asbt> Asbts { get; set; }
         public virtual DbSet<Belt> Belts { get; set; }
         public virtual DbSet<BoPhan> BoPhans { get; set; }
+        public virtual DbSet<UserItem> UserItems { get; set; }
+        
         public virtual DbSet<ClientAddress> ClientAddresses { get; set; }
         public virtual DbSet<CongViec> CongViecs { get; set; }
         public virtual DbSet<Eibt> Eibts { get; set; }
@@ -340,6 +342,25 @@ namespace HMIS_API.Repository.Models
                     .IsFixedLength(true);
 
                 entity.Property(e => e.UserName).HasMaxLength(20);
+            });
+            modelBuilder.Entity<UserItem>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id);
+                entity.Property(e => e.FullName);
+                entity.Property(e => e.UserName);
+                entity.Property(e => e.Email);
+                entity.Property(e => e.PhoneNumber);
+                entity.Property(e => e.PassWord);
+                entity.Property(e => e.DeptId);
+                entity.Property(e => e.DeptName);
+                entity.Property(e => e.RolesId);
+                entity.Property(e => e.RoleName);
+                entity.Property(e => e.DOB);
+                entity.Property(e => e.ListArea);
+                entity.Property(e => e.ListView);
+                entity.Property(e => e.ListInsert);
+                entity.Property(e => e.ListUpdate);
             });
             modelBuilder.Entity<UserModeDetail>(entity =>
             {

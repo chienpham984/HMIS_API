@@ -28,13 +28,52 @@ namespace HMIS_API.Controllers
             _config = config;
         }
 
-        [HttpGet]
-        public IActionResult Login(UserModel login)
+        [HttpPost]
+        public IActionResult Login(UserModel userinfor)
         {
             IActionResult response = Unauthorized();
-            var tokenStr = GenerateJsonWebToken(login);
-            response = Ok(new { token = tokenStr });
-            return response;
+            //var tokenStr = GenerateJsonWebToken(login);
+            //response = Ok(new { Success=true, Message="Login Successfully", data = tokenStr });
+            //return response;
+            List<UserModeDetail> listUser = new List<UserModeDetail>();
+            UserModeDetail user = null;
+            using (var db = new HMIS_BKKContext())
+            {
+                listUser = db.UserModeDetails.FromSqlRaw($"EXEC SPLoginBamboo '{userinfor.UserName.Trim()}','{userinfor.PassWord.Trim()}','{userinfor.AreaName.Trim()}'").ToList();
+            }
+            if (listUser.Count > 0)
+            {
+                user = listUser[0];
+            }
+
+            var sercurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["jwt:key"]));
+            var credentials = new SigningCredentials(sercurityKey, SecurityAlgorithms.HmacSha256);
+            if (user != null)
+            {
+                var claims = new[] {
+                new Claim("ID", user.UserName),
+                new Claim("FullName", user.FullName.Trim()),
+                new Claim("Email", user.Email.Trim()),
+                new Claim("PhoneNumber", user.PhoneNumber.Trim()),
+                new Claim("DeptCode", user.DeptCode.Trim()),
+                new Claim("RoleCode", user.RoleCode.Trim()),
+                new Claim("ListDocument", user.ListDocument.Trim()),
+                new Claim("AreaName", user.AreaName.Trim()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+                var tocken = new JwtSecurityToken(
+                    issuer: _config["jwt:Issuer"],
+                    audience: _config["jwt:Issuer"],
+                    claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: credentials);
+
+                var encodeToken = new JwtSecurityTokenHandler().WriteToken(tocken);
+                return Ok(new { Success = true, Message = "Login Successfully", data = encodeToken }); 
+            }
+            else
+                return response;
+
         }
 
         private string GenerateJsonWebToken(UserModel userinfor)
@@ -80,7 +119,7 @@ namespace HMIS_API.Controllers
 
         }
 
-        [HttpGet("getPassWord")]
+        [HttpPost("getPassWord")]
         public IActionResult getPassWord(UserModel login)
         {
             User myInfor = null;
@@ -97,7 +136,8 @@ namespace HMIS_API.Controllers
                                 UserName = User.UserName,
                                 PassWord = User.PassWord,
                                 Email = User.Email
-                            }; 
+                            };
+                //return Ok(new { Success = true, Message = "Login Successfully", data = query.FirstOrDefault() });
                 return Ok(query.FirstOrDefault());
             }
             

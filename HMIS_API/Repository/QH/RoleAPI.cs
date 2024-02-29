@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 namespace HMIS_API.Repository.QH
 {
-    public class UserAPI
+    public class RoleAPI
     {
+
         public bool Success { get; set; }
         public string Message { get; set; }
-        public List<UserItem> Data { get; set; }
+        public List<Role> Data { get; set; }
     }
 }

@@ -68,6 +68,8 @@ namespace HMIS_API.Controllers
                     Data = null
                 });
         }
+        
+        //documenttype by user
         [Authorize]
         [HttpGet("getListDocumentType")]
         public IActionResult getListDocumentType()
@@ -116,6 +118,8 @@ namespace HMIS_API.Controllers
                 });
         }
 
+
+        //document by user
         [Authorize]
         [HttpPost("InsertDocument")]
         public IActionResult InsertDocument(Document doc)
@@ -297,5 +301,7 @@ namespace HMIS_API.Controllers
                     Data = null
                 });
         }
+
+
     }
 }

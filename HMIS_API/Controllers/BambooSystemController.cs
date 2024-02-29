@@ -183,6 +183,168 @@ namespace HMIS_API.Controllers
                 });
         }
 
+        //Department
+        [Authorize]
+        [HttpGet("getListRole")]
+        public IActionResult getListRole()
+        {
+            //kiem tra role
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
+            UserRole = UserRole.Replace("RoleCode:", "");
+
+            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
+            UserArea = UserArea.Replace("AreaName:", "");
+
+            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
+            {
+                List<Role> listRole = _context.Roles.OrderBy(d => d.RoleName).ToList();
+                return Ok(new RoleAPI
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = listRole
+                });
+            }
+            else
+                return Ok(new RoleAPI
+                {
+                    Success = false,
+                    Message = "User Not allow to get data",
+                    Data = null
+                });
+        }
+        [Authorize]
+        [HttpPost("updateRole")]
+        public IActionResult updateRole(Role role)
+        {
+            //kiem tra role
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
+            UserRole = UserRole.Replace("RoleCode:", "");
+
+            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
+            UserArea = UserArea.Replace("AreaName:", "");
+
+            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
+            {
+                Role curRole = null;
+                curRole = _context.Roles.Where(d => d.Id.Equals(role.Id)).FirstOrDefault();
+                if (curRole == null)
+                {
+                    return Ok(new DepartmenAPI
+                    {
+                        Success = false,
+                        Message = "information to be updated not exists",
+                        Data = null
+                    });
+                }
+                curRole.RoleCode = role.RoleCode.Trim();
+                curRole.RoleName = role.RoleName.Trim();
+                _context.SaveChanges();
+                List<Role> listRole = _context.Roles.OrderBy(d => d.RoleName).ToList();
+                return Ok(new RoleAPI
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = listRole
+                });
+            }
+            else
+                return Ok(new RoleAPI
+                {
+                    Success = false,
+                    Message = "User Not allow to get data",
+                    Data = null
+                });
+        }
+        [Authorize]
+        [HttpPost("InsertRole")]
+        public IActionResult InsertRole(Role role)
+        {
+            //kiem tra role
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
+            UserRole = UserRole.Replace("RoleCode:", "");
+
+            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
+            UserArea = UserArea.Replace("AreaName:", "");
+
+            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
+            {
+                Role CurRole = null;
+                CurRole = _context.Roles.Where(d => d.RoleName.Trim().Equals(role.RoleName.Trim()) || d.RoleCode.Trim().Equals(role.RoleCode.Trim())).FirstOrDefault();
+                if (CurRole != null)
+                {
+                    return Ok(new RoleAPI
+                    {
+                        Success = false,
+                        Message = "information to be added already exists",
+                        Data = null
+                    });
+                }
+                _context.Roles.Add(role);
+                _context.SaveChanges();
+                List<Role> listRole = _context.Roles.OrderBy(d => d.RoleName).ToList();
+                return Ok(new RoleAPI
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = listRole
+                });
+            }
+            else
+                return Ok(new RoleAPI
+                {
+                    Success = false,
+                    Message = "User Not allow to get data",
+                    Data = null
+                });
+        }
+        [Authorize]
+        [HttpPost("deleteDepartment")]
+        public IActionResult deleteRole(deleteModal deptModal)
+        {
+            //kiem tra role
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
+            UserRole = UserRole.Replace("RoleCode:", "");
+
+            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
+            UserArea = UserArea.Replace("AreaName:", "");
+
+            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
+            {
+                Role CurRole = null;
+                CurRole = _context.Roles.Where(d => d.Id == deptModal.depetedId).FirstOrDefault();
+                if (CurRole == null)
+                {
+                    return Ok(new RoleAPI
+                    {
+                        Success = false,
+                        Message = "information to be deleted not exists",
+                        Data = null
+                    });
+                }
+                _context.Roles.Remove(CurRole);
+                _context.SaveChanges();
+                List<Role> listRole = _context.Roles.OrderBy(d => d.RoleName).ToList();
+                return Ok(new RoleAPI
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = listRole
+                });
+            }
+            else
+                return Ok(new RoleAPI
+                {
+                    Success = false,
+                    Message = "User Not allow to get data",
+                    Data = null
+                });
+        }
+
         //DocumentType
         [Authorize]
         [HttpGet("getListDocumentType")]
@@ -345,34 +507,17 @@ namespace HMIS_API.Controllers
         }
 
         //Mail System
-        [Authorize]
-        [HttpGet("getMailSystem")]
+       
+        [HttpPost("getMailSystem")]
         public IActionResult getMailSystem()
         {
             //kiem tra role
-            var claims = _httpContextAccessor.HttpContext.User.Claims;
-            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
-            UserRole = UserRole.Replace("RoleCode:", "");
-
-            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
-            UserArea = UserArea.Replace("AreaName:", "");
-
-            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
-            {
                 MailSystem listDocType = _context.MailSystems.OrderByDescending(m=>m.Id).FirstOrDefault();
                 return Ok(new MailSystemAPI
                 {
                     Success = true,
                     Message = "Authenticate Success",
                     Data = listDocType
-                });
-            }
-            else
-                return Ok(new DocumentTypeAPI
-                {
-                    Success = false,
-                    Message = "User Not allow to get data",
-                    Data = null
                 });
         }
         [Authorize]
@@ -522,7 +667,8 @@ namespace HMIS_API.Controllers
 
             if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
             {
-                List<User> listUser = _context.Users.OrderBy(d => d.DeptId).ToList();
+                List<UserItem> listUser = _context.UserItems.FromSqlRaw($"EXEC SPGetAllUserBamboo").ToList();
+                //List<User> listUser = _context.Users.OrderBy(d => d.DeptId).ToList();
                 return Ok(new UserAPI
                 {
                     Success = true,
@@ -538,6 +684,37 @@ namespace HMIS_API.Controllers
                     Data = null
                 });
         }
+        [Authorize]
+        [HttpGet("getListUserByUserId")]
+        public IActionResult getListUserByUserId(int UserId)
+        {
+            //kiem tra role
+            var claims = _httpContextAccessor.HttpContext.User.Claims;
+            string UserRole = claims.FirstOrDefault(c => c.Type == "RoleCode").ToString();
+            UserRole = UserRole.Replace("RoleCode:", "");
+
+            string UserArea = claims.FirstOrDefault(c => c.Type == "AreaName").ToString();
+            UserArea = UserArea.Replace("AreaName:", "");
+
+            if (UserRole.Trim() == "Admin" && UserArea.Trim() == "System")
+            {
+                List<UserItem> listUser = _context.UserItems.FromSqlRaw($"EXEC SPGetUserByUserIDBamboo {UserId.ToString()}").ToList();
+                return Ok(new UserAPI
+                {
+                    Success = true,
+                    Message = "Authenticate Success",
+                    Data = listUser
+                });
+            }
+            else
+                return Ok(new UserAPI
+                {
+                    Success = false,
+                    Message = "User Not allow to get data",
+                    Data = null
+                });
+        }
+
         [Authorize]
         [HttpPost("updateUser")]
         public IActionResult updateUser(User userUpdated)
@@ -574,7 +751,8 @@ namespace HMIS_API.Controllers
                 user.UserStatus = userUpdated.UserStatus;
                 user.DOB = userUpdated.DOB;
                 _context.SaveChanges();
-                List<User> listUser = _context.Users.OrderBy(d => d.DeptId).ToList();
+                List<UserItem> listUser = _context.UserItems.FromSqlRaw($"EXEC SPGetAllUserBamboo").ToList();
+              
                 return Ok(new UserAPI
                 {
                     Success = true,
@@ -606,6 +784,7 @@ namespace HMIS_API.Controllers
             {
                 User user = null;
                 user = _context.Users.Where(d => d.UserName.Trim().Equals(userinserted.UserName.Trim()) || d.Email.Trim().Equals(userinserted.Email.Trim())).FirstOrDefault();
+                user.UserStatus = true;
                 if (user != null)
                 {
                     return Ok(new UserAPI
@@ -617,7 +796,7 @@ namespace HMIS_API.Controllers
                 }
                 _context.Users.Add(userinserted);
                 _context.SaveChanges();
-                List<User> listUser = _context.Users.OrderBy(d => d.DeptId).ToList();
+                List<UserItem> listUser = _context.UserItems.FromSqlRaw($"EXEC SPGetAllUserBamboo").ToList();
                 return Ok(new UserAPI
                 {
                     Success = true,
@@ -658,9 +837,11 @@ namespace HMIS_API.Controllers
                         Data = null
                     });
                 }
-                _context.Users.Remove(user);
+
+                //_context.Users.Remove(user);
+                user.UserStatus = false;
                 _context.SaveChanges();
-                List<User> listUser = _context.Users.OrderBy(d => d.DeptId).ToList();
+                List<UserItem> listUser = _context.UserItems.FromSqlRaw($"EXEC SPGetAllUserBamboo").ToList();
                 return Ok(new UserAPI
                 {
                     Success = true,
